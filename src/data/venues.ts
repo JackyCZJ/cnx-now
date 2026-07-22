@@ -1,0 +1,286 @@
+// 场馆数据：hours 规则按星期几写入，方便后续调整
+export interface HoursRule {
+  /** 0=周日 1=周一 … 6=周六 */
+  days: number[]
+  /** "HH:MM" */
+  open: string
+  /** "HH:MM"，跨午夜用 "24:00" */
+  close: string
+}
+
+export interface Venue {
+  id: string
+  name: string
+  /** Google Maps 搜索用英文名/地址 */
+  mapQuery: string
+  category: string
+  area: string
+  /** 展示用营业时间说明 */
+  hoursText: string
+  rules: HoursRule[]
+  /** 从古城区出发的大致交通时间 */
+  transport: string
+  note?: string
+  /** 展示用电话 */
+  phone?: string
+  /** tel: 链接用 */
+  phoneTel?: string
+}
+
+const EVERYDAY = [0, 1, 2, 3, 4, 5, 6]
+
+export const VENUES: Venue[] = [
+  {
+    id: 'thapae-oldcity',
+    name: '塔佩门及古城寺庙群',
+    mapQuery: 'Tha Phae Gate',
+    category: '景点',
+    area: '古城',
+    hoursText: '每天 06:00–18:00（塔佩门广场全天开放）',
+    rules: [{ days: EVERYDAY, open: '06:00', close: '18:00' }],
+    transport: '古城内步行可达',
+    note: '帕辛寺 / 契迪龙寺 / 清曼寺；免费或小额门票',
+  },
+  {
+    id: 'chang-moi',
+    name: '草编街 Chang Moi Kao Rd',
+    mapQuery: 'Chang Moi Kao Road',
+    category: '逛街',
+    area: '古城东',
+    hoursText: '每天约 09:00–18:00',
+    rules: [{ days: EVERYDAY, open: '09:00', close: '18:00' }],
+    transport: '古城步行约 10 分钟',
+    note: '店铺傍晚陆续关门，建议下午前去',
+  },
+  {
+    id: 'night-bazaar',
+    name: '长康路夜市 Night Bazaar',
+    mapQuery: 'Chiang Mai Night Bazaar',
+    category: '夜市',
+    area: '长康路',
+    hoursText: '每天 17:00–23:00',
+    rules: [{ days: EVERYDAY, open: '17:00', close: '23:00' }],
+    transport: 'Grab 约 10 分钟',
+  },
+  {
+    id: 'jj-market',
+    name: 'JJ Market',
+    mapQuery: 'Jing Jai Market',
+    category: '市集',
+    area: '城北',
+    hoursText: '每周六、日 06:30–13:00',
+    rules: [{ days: [0, 6], open: '06:30', close: '13:00' }],
+    transport: 'Grab 约 15 分钟',
+    note: '建议 9 点前到',
+  },
+  {
+    id: 'wualai',
+    name: '周六夜市 Wualai',
+    mapQuery: 'Wualai Walking Street',
+    category: '夜市',
+    area: '古城南',
+    hoursText: '每周六 17:00–23:00',
+    rules: [{ days: [6], open: '17:00', close: '23:00' }],
+    transport: '古城步行 / Grab 约 10 分钟',
+  },
+  {
+    id: 'sunday-market',
+    name: '周日夜市',
+    mapQuery: 'Sunday Walking Street Chiang Mai',
+    category: '夜市',
+    area: '古城内',
+    hoursText: '每周日 17:00–23:00',
+    rules: [{ days: [0], open: '17:00', close: '23:00' }],
+    transport: '古城内步行可达',
+  },
+  {
+    id: 'malin-plaza',
+    name: '清迈大学前门夜市 Malin Plaza',
+    mapQuery: 'Malin Plaza Chiang Mai',
+    category: '夜市',
+    area: '清迈大学',
+    hoursText: '每天约 17:00–23:00',
+    rules: [{ days: EVERYDAY, open: '17:00', close: '23:00' }],
+    transport: 'Grab 约 15 分钟',
+    note: '本地学生物价',
+  },
+  {
+    id: 'night-safari',
+    name: '夜间动物园 Night Safari',
+    mapQuery: 'Chiang Mai Night Safari',
+    category: '景点',
+    area: '西南郊',
+    hoursText: '每天 11:00–22:00',
+    rules: [{ days: EVERYDAY, open: '11:00', close: '22:00' }],
+    transport: '车程 30–40 分钟',
+    note: '约 ฿800/人，建议傍晚后去',
+  },
+  {
+    id: 'bua-thong',
+    name: '粘粘瀑布 Bua Thong',
+    mapQuery: 'Bua Thong Waterfall',
+    category: '自然',
+    area: '北部',
+    hoursText: '每天约 08:00–17:00',
+    rules: [{ days: EVERYDAY, open: '08:00', close: '17:00' }],
+    transport: '车程约 1 小时',
+    note: '免费；备换洗衣物、防滑鞋',
+  },
+  {
+    id: 'baan-kang-wat',
+    name: 'Baan Kang Wat 艺术村',
+    mapQuery: 'Baan Kang Wat',
+    category: '文创',
+    area: '西南郊',
+    hoursText: '周二至周日约 10:00–18:00（周一休）',
+    rules: [{ days: [0, 2, 3, 4, 5, 6], open: '10:00', close: '18:00' }],
+    transport: 'Grab 约 20 分钟',
+    note: '咖啡馆 + 手作小店',
+  },
+  {
+    id: 'doi-suthep',
+    name: '双龙寺（素贴山）',
+    mapQuery: 'Wat Phra That Doi Suthep',
+    category: '寺庙',
+    area: '素贴山',
+    hoursText: '每天约 06:00–20:00',
+    rules: [{ days: EVERYDAY, open: '06:00', close: '20:00' }],
+    transport: '车程约 40 分钟',
+    note: '门票约 ฿30',
+  },
+  {
+    id: 'wat-pha-lat',
+    name: '帕拉寺 Wat Pha Lat',
+    mapQuery: 'Wat Pha Lat',
+    category: '寺庙',
+    area: '素贴山腰',
+    hoursText: '每天约 06:00–18:00',
+    rules: [{ days: EVERYDAY, open: '06:00', close: '18:00' }],
+    transport: '车程约 30 分钟',
+    note: '免费，林间小寺',
+  },
+  {
+    id: 'maya',
+    name: 'MAYA 购物中心',
+    mapQuery: 'MAYA Lifestyle Shopping Center',
+    category: '商场',
+    area: '宁曼路口',
+    hoursText: '每天 10:00–22:00',
+    rules: [{ days: EVERYDAY, open: '10:00', close: '22:00' }],
+    transport: 'Grab 约 15 分钟',
+  },
+  {
+    id: 'one-nimman',
+    name: 'One Nimman / 宁曼路商圈',
+    mapQuery: 'One Nimman',
+    category: '逛街',
+    area: '宁曼路',
+    hoursText: '每天约 10:00–22:00',
+    rules: [{ days: EVERYDAY, open: '10:00', close: '22:00' }],
+    transport: 'Grab 约 15 分钟',
+    note: '咖啡馆、文创店',
+  },
+  {
+    id: 'big-c',
+    name: 'Big C Superhighway',
+    mapQuery: 'Big C Superhighway Chiang Mai',
+    category: '超市',
+    area: 'Superhighway',
+    hoursText: '每天约 09:00–23:00',
+    rules: [{ days: EVERYDAY, open: '09:00', close: '23:00' }],
+    transport: 'Grab 约 15 分钟',
+    note: '手信采购；隔壁是 Decathlon',
+  },
+  {
+    id: 'decathlon-zumba',
+    name: 'Decathlon 尊巴课',
+    mapQuery: 'Decathlon Chiang Mai',
+    category: '运动',
+    area: 'Superhighway',
+    hoursText: '每周一/二/四/六 18:00–19:00',
+    rules: [{ days: [1, 2, 4, 6], open: '18:00', close: '19:00' }],
+    transport: 'Grab 约 15 分钟',
+    note: '约 ฿200/节，需穿至少一件迪卡侬单品',
+  },
+  {
+    id: 'thaphae-boxing',
+    name: '塔佩拳击场泰拳比赛',
+    mapQuery: 'Thaphae Boxing Stadium',
+    category: '演出',
+    area: '塔佩门对面',
+    hoursText: '周一至周六 20:00–24:00（21:00 开赛）',
+    rules: [{ days: [1, 2, 3, 4, 5, 6], open: '20:00', close: '24:00' }],
+    transport: '塔佩门步行可达',
+    note: '普通 ฿400 / VIP ฿600，可现场购票',
+  },
+  {
+    id: 'muaythai-class',
+    name: '泰拳体验课 Thaphae Muay Thai Gym',
+    mapQuery: 'Thaphae Muay Thai Gym',
+    category: '运动',
+    area: '塔佩门步行 5 分钟',
+    hoursText: '每天约 08:00–19:00',
+    rules: [{ days: EVERYDAY, open: '08:00', close: '19:00' }],
+    transport: '塔佩门步行 5 分钟',
+    note: '约 ฿450/1.5h，馆方备装备',
+  },
+  {
+    id: 'club-carving',
+    name: 'Club Carving CNX 陆冲馆',
+    mapQuery: 'Club Carving CNX',
+    category: '运动',
+    area: '素贴路南段',
+    hoursText: '每天 11:00–20:00',
+    rules: [{ days: EVERYDAY, open: '11:00', close: '20:00' }],
+    transport: 'Grab 10–15 分钟',
+    note: 'Google 4.8 分；有新手教练私教课',
+    phone: '+66 96 747 8039',
+    phoneTel: '+66967478039',
+  },
+  {
+    id: 'arc-cafe',
+    name: 'The Arc Cafe & Surf Skate',
+    mapQuery: 'The Arc Cafe & Surf Skate',
+    category: '运动/咖啡',
+    area: 'Tha Sala',
+    hoursText: '每天约 10:00–21:00',
+    rules: [{ days: EVERYDAY, open: '10:00', close: '21:00' }],
+    transport: 'Grab 约 20 分钟',
+    note: 'Google 4.5 分；有陆冲区',
+  },
+  {
+    id: 'shooting-club',
+    name: 'Shooting Club Chiang Mai 射击',
+    mapQuery: 'Shooting Club Chiang Mai',
+    category: '运动',
+    area: '湄林',
+    hoursText: '每天 08:30–17:30',
+    rules: [{ days: EVERYDAY, open: '08:30', close: '17:30' }],
+    transport: 'Grab 约 40 分钟',
+    note: '套餐约 ฿900 起；需至少提前 2 小时预订；12–64 岁',
+  },
+  {
+    id: 'gymkhana',
+    name: 'Gymkhana Club 网球',
+    mapQuery: 'Gymkhana Club Chiang Mai',
+    category: '运动',
+    area: '古城东南',
+    hoursText: '每天 07:00–21:00',
+    rules: [{ days: EVERYDAY, open: '07:00', close: '21:00' }],
+    transport: 'Grab 约 10 分钟',
+    note: '游客 ฿120/片/时；周二至五 16:30–19:00 为会员专场（游客此时段不可订）',
+    phone: '053-241035',
+    phoneTel: '+6653241035',
+  },
+  {
+    id: 'spa',
+    name: '按摩 Spa（Fah Lanna 等）',
+    mapQuery: 'Fah Lanna Spa',
+    category: '放松',
+    area: '古城内',
+    hoursText: '每天约 10:00–22:00',
+    rules: [{ days: EVERYDAY, open: '10:00', close: '22:00' }],
+    transport: '古城内步行可达',
+    note: '฿300–600/小时起，热门店提前 1–2 天约',
+  },
+]
