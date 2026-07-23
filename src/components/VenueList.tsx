@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChevronDown, Clock, MapPin, Navigation, Phone, StickyNote } from 'lucide-react'
 import { VENUES, VENUE_GROUPS, type Venue, type VenueGroupId } from '@/data/venues'
 import { compareVenues, getVenueState, type VenueStatus } from '@/lib/venue-status'
-import type { VenueFilter } from '@/components/FilterBar'
+import type { GroupFilter, VenueFilter } from '@/components/FilterBar'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -129,16 +129,26 @@ function VenueGroup({
   )
 }
 
-export function VenueList({ now, filter }: { now: Date; filter: VenueFilter }) {
+export function VenueList({
+  now,
+  filter,
+  groupFilter,
+}: {
+  now: Date
+  filter: VenueFilter
+  groupFilter: GroupFilter
+}) {
   const grouped = useMemo(() => {
-    const filtered = VENUES.filter((v) =>
-      matchFilter(getVenueState(v, now).status, filter),
+    const filtered = VENUES.filter(
+      (v) =>
+        (groupFilter === 'all' || v.group === groupFilter) &&
+        matchFilter(getVenueState(v, now).status, filter),
     ).sort((a, b) => compareVenues(a, b, now))
     return VENUE_GROUPS.map((g) => ({
       group: g,
       venues: filtered.filter((v) => v.group === g.id),
     })).filter(({ venues }) => venues.length > 0)
-  }, [now, filter])
+  }, [now, filter, groupFilter])
 
   return (
     <section>

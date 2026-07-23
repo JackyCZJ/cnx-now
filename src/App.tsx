@@ -3,7 +3,7 @@ import { bangkokNow, makeTripDate, tripPhase } from '@/lib/cnx-time'
 import { VENUES } from '@/data/venues'
 import { getVenueState } from '@/lib/venue-status'
 import { SiteHeader } from '@/components/SiteHeader'
-import { FilterBar, type VenueFilter } from '@/components/FilterBar'
+import { FilterBar, type GroupFilter, type VenueFilter } from '@/components/FilterBar'
 import { PreviewBar, type Preview } from '@/components/PreviewBar'
 import { TodayPlan } from '@/components/TodayPlan'
 import { VenueList } from '@/components/VenueList'
@@ -20,8 +20,9 @@ export default function App() {
   // 预览模式：null = 跟随真实时间
   const [preview, setPreview] = useState<Preview | null>(null)
 
-  // 场馆状态筛选（置顶吸顶栏控制）
+  // 场馆状态筛选 + 场所类型筛选（置顶吸顶栏控制）
   const [filter, setFilter] = useState<VenueFilter>('all')
+  const [groupFilter, setGroupFilter] = useState<GroupFilter>('all')
 
   const phase = tripPhase(now)
 
@@ -30,12 +31,21 @@ export default function App() {
     [preview, now],
   )
 
+  // 计数跟随类型筛选：只统计当前类型下的场馆
+  const scopedVenues = useMemo(
+    () =>
+      groupFilter === 'all'
+        ? VENUES
+        : VENUES.filter((v) => v.group === groupFilter),
+    [groupFilter],
+  )
+
   const openCount = useMemo(
     () =>
-      VENUES.filter((v) =>
+      scopedVenues.filter((v) =>
         ['open', 'closing'].includes(getVenueState(v, effective).status),
       ).length,
-    [effective],
+    [scopedVenues, effective],
   )
 
   const displayDay =
@@ -60,9 +70,11 @@ export default function App() {
       <SiteHeader now={now} phase={phase} previewing={preview !== null} />
       <FilterBar
         filter={filter}
-        onChange={setFilter}
+        onFilterChange={setFilter}
+        groupFilter={groupFilter}
+        onGroupFilterChange={setGroupFilter}
         openCount={openCount}
-        total={VENUES.length}
+        total={scopedVenues.length}
       />
       <main className="mx-auto mt-3 max-w-5xl space-y-8 px-4 pb-16">
         <PreviewBar
@@ -74,7 +86,7 @@ export default function App() {
           onReset={() => setPreview(null)}
         />
         <TodayPlan day={displayDay} />
-        <VenueList now={effective} filter={filter} />
+        <VenueList now={effective} filter={filter} groupFilter={groupFilter} />
         <FooterInfo />
       </main>
     </div>
