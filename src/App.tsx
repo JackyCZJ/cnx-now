@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { bangkokNow, makeTripDate, tripPhase } from '@/lib/cnx-time'
+import { VENUES } from '@/data/venues'
+import { getVenueState } from '@/lib/venue-status'
 import { SiteHeader } from '@/components/SiteHeader'
+import { FilterBar, type VenueFilter } from '@/components/FilterBar'
 import { PreviewBar, type Preview } from '@/components/PreviewBar'
 import { TodayPlan } from '@/components/TodayPlan'
 import { VenueList } from '@/components/VenueList'
@@ -17,11 +20,22 @@ export default function App() {
   // 预览模式：null = 跟随真实时间
   const [preview, setPreview] = useState<Preview | null>(null)
 
+  // 场馆状态筛选（置顶吸顶栏控制）
+  const [filter, setFilter] = useState<VenueFilter>('all')
+
   const phase = tripPhase(now)
 
   const effective = useMemo(
     () => (preview ? makeTripDate(preview.day, preview.minutes) : now),
     [preview, now],
+  )
+
+  const openCount = useMemo(
+    () =>
+      VENUES.filter((v) =>
+        ['open', 'closing'].includes(getVenueState(v, effective).status),
+      ).length,
+    [effective],
   )
 
   const displayDay =
@@ -44,7 +58,13 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[hsl(45,33%,97%)]">
       <SiteHeader now={now} phase={phase} previewing={preview !== null} />
-      <main className="mx-auto -mt-5 max-w-5xl space-y-8 px-4 pb-16">
+      <FilterBar
+        filter={filter}
+        onChange={setFilter}
+        openCount={openCount}
+        total={VENUES.length}
+      />
+      <main className="mx-auto mt-3 max-w-5xl space-y-8 px-4 pb-16">
         <PreviewBar
           preview={preview}
           onPreviewDay={handlePreviewDay}
@@ -54,7 +74,7 @@ export default function App() {
           onReset={() => setPreview(null)}
         />
         <TodayPlan day={displayDay} />
-        <VenueList now={effective} />
+        <VenueList now={effective} filter={filter} />
         <FooterInfo />
       </main>
     </div>

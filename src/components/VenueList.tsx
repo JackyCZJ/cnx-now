@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChevronDown, Clock, MapPin, Navigation, Phone, StickyNote } from 'lucide-react'
 import { VENUES, VENUE_GROUPS, type Venue, type VenueGroupId } from '@/data/venues'
 import { compareVenues, getVenueState, type VenueStatus } from '@/lib/venue-status'
+import type { VenueFilter } from '@/components/FilterBar'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,15 +13,6 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 
-type Filter = 'all' | 'open' | 'later' | 'closed'
-
-const FILTERS: { key: Filter; label: string }[] = [
-  { key: 'all', label: '全部' },
-  { key: 'open', label: '营业中' },
-  { key: 'later', label: '待开放' },
-  { key: 'closed', label: '已打烊或休息' },
-]
-
 const BADGE_STYLE: Record<VenueStatus, string> = {
   open: 'bg-emerald-500 text-white border-transparent hover:bg-emerald-500',
   closing: 'bg-amber-500 text-white border-transparent hover:bg-amber-500',
@@ -29,7 +21,7 @@ const BADGE_STYLE: Record<VenueStatus, string> = {
   rest: 'bg-zinc-200 text-zinc-600 border-transparent hover:bg-zinc-200',
 }
 
-function matchFilter(status: VenueStatus, filter: Filter): boolean {
+function matchFilter(status: VenueStatus, filter: VenueFilter): boolean {
   if (filter === 'all') return true
   if (filter === 'open') return status === 'open' || status === 'closing'
   if (filter === 'later') return status === 'later'
@@ -137,9 +129,7 @@ function VenueGroup({
   )
 }
 
-export function VenueList({ now }: { now: Date }) {
-  const [filter, setFilter] = useState<Filter>('all')
-
+export function VenueList({ now, filter }: { now: Date; filter: VenueFilter }) {
   const grouped = useMemo(() => {
     const filtered = VENUES.filter((v) =>
       matchFilter(getVenueState(v, now).status, filter),
@@ -150,36 +140,13 @@ export function VenueList({ now }: { now: Date }) {
     })).filter(({ venues }) => venues.length > 0)
   }, [now, filter])
 
-  const openCount = useMemo(
-    () => VENUES.filter((v) => isOpenNow(getVenueState(v, now).status)).length,
-    [now],
-  )
-
   return (
     <section>
       <div className="mb-3 flex flex-wrap items-baseline gap-x-2">
-        <h2 className="text-lg font-bold text-teal-950">现在可以去</h2>
+        <h2 className="text-lg font-bold text-teal-950">场馆分类</h2>
         <span className="text-sm text-muted-foreground">
-          {openCount} 个场馆营业中 · 共 {VENUES.length} 个
+          筛选状态已置顶，滚动时也可随时切换
         </span>
-      </div>
-      <div className="mb-4 flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
-          <Button
-            key={f.key}
-            size="sm"
-            variant={filter === f.key ? 'default' : 'outline'}
-            className={cn(
-              'rounded-full',
-              filter === f.key
-                ? 'bg-teal-700 hover:bg-teal-800'
-                : 'border-teal-200 text-teal-700 hover:bg-teal-50',
-            )}
-            onClick={() => setFilter(f.key)}
-          >
-            {f.label}
-          </Button>
-        ))}
       </div>
       {grouped.length === 0 ? (
         <p className="rounded-lg border border-dashed border-teal-200 p-6 text-center text-sm text-muted-foreground">
