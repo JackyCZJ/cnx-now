@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react'
-import { Clock, MapPin, Navigation, Phone, StickyNote } from 'lucide-react'
-import { VENUES, type Venue } from '@/data/venues'
+import { ChevronDown, Clock, MapPin, Navigation, Phone, StickyNote } from 'lucide-react'
+import { VENUES, VENUE_GROUPS, type Venue, type VenueGroupId } from '@/data/venues'
 import { compareVenues, getVenueState, type VenueStatus } from '@/lib/venue-status'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 
 type Filter = 'all' | 'open' | 'later' | 'closed'
 
@@ -29,6 +34,10 @@ function matchFilter(status: VenueStatus, filter: Filter): boolean {
   if (filter === 'open') return status === 'open' || status === 'closing'
   if (filter === 'later') return status === 'later'
   return status === 'closed' || status === 'rest'
+}
+
+function isOpenNow(status: VenueStatus): boolean {
+  return status === 'open' || status === 'closing'
 }
 
 function mapsUrl(venue: Venue): string {
@@ -90,19 +99,59 @@ function VenueCard({ venue, now }: { venue: Venue; now: Date }) {
   )
 }
 
+function VenueGroup({
+  groupId,
+  venues,
+  now,
+}: {
+  groupId: VenueGroupId
+  venues: Venue[]
+  now: Date
+}) {
+  const [open, setOpen] = useState(true)
+  const meta = VENUE_GROUPS.find((g) => g.id === groupId)!
+  const openCount = venues.filter((v) => isOpenNow(getVenueState(v, now).status)).length
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <div className="rounded-xl border border-teal-200/80 bg-white/60">
+        <CollapsibleTrigger className="flex w-full items-center gap-2.5 rounded-t-xl bg-gradient-to-r from-teal-700 to-teal-600 px-4 py-3 text-left text-white">
+          <span className="text-lg leading-none">{meta.emoji}</span>
+          <span className="text-base font-bold tracking-wide">{meta.label}</span>
+          <Badge className="ml-1 border-transparent bg-white/20 text-white hover:bg-white/20">
+            营业中 {openCount} / 共 {venues.length}
+          </Badge>
+          <ChevronDown
+            className={cn('ml-auto size-5 shrink-0 transition-transform', !open && '-rotate-90')}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="grid grid-cols-1 gap-4 p-3 sm:p-4 md:grid-cols-2">
+            {venues.map((v) => (
+              <VenueCard key={v.id} venue={v} now={now} />
+            ))}
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  )
+}
+
 export function VenueList({ now }: { now: Date }) {
   const [filter, setFilter] = useState<Filter>('all')
 
-  const venues = useMemo(
-    () =>
-      [...VENUES]
-        .filter((v) => matchFilter(getVenueState(v, now).status, filter))
-        .sort((a, b) => compareVenues(a, b, now)),
-    [now, filter],
-  )
+  const grouped = useMemo(() => {
+    const filtered = VENUES.filter((v) =>
+      matchFilter(getVenueState(v, now).status, filter),
+    ).sort((a, b) => compareVenues(a, b, now))
+    return VENUE_GROUPS.map((g) => ({
+      group: g,
+      venues: filtered.filter((v) => v.group === g.id),
+    })).filter(({ venues }) => venues.length > 0)
+  }, [now, filter])
 
   const openCount = useMemo(
-    () => VENUES.filter((v) => ['open', 'closing'].includes(getVenueState(v, now).status)).length,
+    () => VENUES.filter((v) => isOpenNow(getVenueState(v, now).status)).length,
     [now],
   )
 
@@ -132,14 +181,14 @@ export function VenueList({ now }: { now: Date }) {
           </Button>
         ))}
       </div>
-      {venues.length === 0 ? (
+      {grouped.length === 0 ? (
         <p className="rounded-lg border border-dashed border-teal-200 p-6 text-center text-sm text-muted-foreground">
           此时刻没有符合筛选的场馆，换个筛选或时间试试。
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {venues.map((v) => (
-            <VenueCard key={v.id} venue={v} now={now} />
+        <div className="space-y-5">
+          {grouped.map(({ group, venues }) => (
+            <VenueGroup key={group.id} groupId={group.id} venues={venues} now={now} />
           ))}
         </div>
       )}

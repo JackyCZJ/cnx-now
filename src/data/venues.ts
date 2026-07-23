@@ -8,12 +8,26 @@ export interface HoursRule {
   close: string
 }
 
+/** 分类分组（展示顺序固定） */
+export const VENUE_GROUPS = [
+  { id: 'sports', label: '运动体验', emoji: '🛹' },
+  { id: 'temples', label: '寺庙与景点', emoji: '🛕' },
+  { id: 'nature', label: '自然与文创', emoji: '🌿' },
+  { id: 'markets', label: '夜市与市集', emoji: '🏮' },
+  { id: 'shopping', label: '购物与商圈', emoji: '🛍️' },
+  { id: 'show-relax', label: '演出与放松', emoji: '🥊' },
+] as const
+
+export type VenueGroupId = (typeof VENUE_GROUPS)[number]['id']
+
 export interface Venue {
   id: string
   name: string
   /** Google Maps 搜索用英文名/地址 */
   mapQuery: string
   category: string
+  /** 分组 */
+  group: VenueGroupId
   area: string
   /** 展示用营业时间说明 */
   hoursText: string
@@ -35,6 +49,7 @@ export const VENUES: Venue[] = [
     name: '塔佩门及古城寺庙群',
     mapQuery: 'Tha Phae Gate',
     category: '景点',
+    group: 'temples',
     area: '古城',
     hoursText: '每天 06:00–18:00（塔佩门广场全天开放）',
     rules: [{ days: EVERYDAY, open: '06:00', close: '18:00' }],
@@ -46,6 +61,7 @@ export const VENUES: Venue[] = [
     name: '草编街 Chang Moi Kao Rd',
     mapQuery: 'Chang Moi Kao Road',
     category: '逛街',
+    group: 'shopping',
     area: '古城东',
     hoursText: '每天约 09:00–18:00',
     rules: [{ days: EVERYDAY, open: '09:00', close: '18:00' }],
@@ -57,6 +73,7 @@ export const VENUES: Venue[] = [
     name: '长康路夜市 Night Bazaar',
     mapQuery: 'Chiang Mai Night Bazaar',
     category: '夜市',
+    group: 'markets',
     area: '长康路',
     hoursText: '每天 17:00–23:00',
     rules: [{ days: EVERYDAY, open: '17:00', close: '23:00' }],
@@ -67,6 +84,7 @@ export const VENUES: Venue[] = [
     name: 'JJ Market',
     mapQuery: 'Jing Jai Market',
     category: '市集',
+    group: 'markets',
     area: '城北',
     hoursText: '每周六、日 06:30–13:00',
     rules: [{ days: [0, 6], open: '06:30', close: '13:00' }],
@@ -78,6 +96,7 @@ export const VENUES: Venue[] = [
     name: '周六夜市 Wualai',
     mapQuery: 'Wualai Walking Street',
     category: '夜市',
+    group: 'markets',
     area: '古城南',
     hoursText: '每周六 17:00–23:00',
     rules: [{ days: [6], open: '17:00', close: '23:00' }],
@@ -88,6 +107,7 @@ export const VENUES: Venue[] = [
     name: '周日夜市',
     mapQuery: 'Sunday Walking Street Chiang Mai',
     category: '夜市',
+    group: 'markets',
     area: '古城内',
     hoursText: '每周日 17:00–23:00',
     rules: [{ days: [0], open: '17:00', close: '23:00' }],
@@ -98,6 +118,7 @@ export const VENUES: Venue[] = [
     name: '清迈大学前门夜市 Malin Plaza',
     mapQuery: 'Malin Plaza Chiang Mai',
     category: '夜市',
+    group: 'markets',
     area: '清迈大学',
     hoursText: '每天约 17:00–23:00',
     rules: [{ days: EVERYDAY, open: '17:00', close: '23:00' }],
@@ -109,6 +130,7 @@ export const VENUES: Venue[] = [
     name: '夜间动物园 Night Safari',
     mapQuery: 'Chiang Mai Night Safari',
     category: '景点',
+    group: 'temples',
     area: '西南郊',
     hoursText: '每天 11:00–22:00',
     rules: [{ days: EVERYDAY, open: '11:00', close: '22:00' }],
@@ -120,6 +142,7 @@ export const VENUES: Venue[] = [
     name: '粘粘瀑布 Bua Thong',
     mapQuery: 'Bua Thong Waterfall',
     category: '自然',
+    group: 'nature',
     area: '北部',
     hoursText: '每天约 08:00–17:00',
     rules: [{ days: EVERYDAY, open: '08:00', close: '17:00' }],
@@ -131,6 +154,7 @@ export const VENUES: Venue[] = [
     name: 'Baan Kang Wat 艺术村',
     mapQuery: 'Baan Kang Wat',
     category: '文创',
+    group: 'nature',
     area: '西南郊',
     hoursText: '周二至周日约 10:00–18:00（周一休）',
     rules: [{ days: [0, 2, 3, 4, 5, 6], open: '10:00', close: '18:00' }],
@@ -142,6 +166,7 @@ export const VENUES: Venue[] = [
     name: '双龙寺（素贴山）',
     mapQuery: 'Wat Phra That Doi Suthep',
     category: '寺庙',
+    group: 'temples',
     area: '素贴山',
     hoursText: '每天约 06:00–20:00',
     rules: [{ days: EVERYDAY, open: '06:00', close: '20:00' }],
@@ -153,6 +178,7 @@ export const VENUES: Venue[] = [
     name: '帕拉寺 Wat Pha Lat',
     mapQuery: 'Wat Pha Lat',
     category: '寺庙',
+    group: 'temples',
     area: '素贴山腰',
     hoursText: '每天约 06:00–18:00',
     rules: [{ days: EVERYDAY, open: '06:00', close: '18:00' }],
@@ -164,6 +190,7 @@ export const VENUES: Venue[] = [
     name: 'MAYA 购物中心',
     mapQuery: 'MAYA Lifestyle Shopping Center',
     category: '商场',
+    group: 'shopping',
     area: '宁曼路口',
     hoursText: '每天 10:00–22:00',
     rules: [{ days: EVERYDAY, open: '10:00', close: '22:00' }],
@@ -174,6 +201,7 @@ export const VENUES: Venue[] = [
     name: 'One Nimman / 宁曼路商圈',
     mapQuery: 'One Nimman',
     category: '逛街',
+    group: 'shopping',
     area: '宁曼路',
     hoursText: '每天约 10:00–22:00',
     rules: [{ days: EVERYDAY, open: '10:00', close: '22:00' }],
@@ -185,6 +213,7 @@ export const VENUES: Venue[] = [
     name: 'Big C Superhighway',
     mapQuery: 'Big C Superhighway Chiang Mai',
     category: '超市',
+    group: 'shopping',
     area: 'Superhighway',
     hoursText: '每天约 09:00–23:00',
     rules: [{ days: EVERYDAY, open: '09:00', close: '23:00' }],
@@ -196,6 +225,7 @@ export const VENUES: Venue[] = [
     name: 'Decathlon 尊巴课',
     mapQuery: 'Decathlon Chiang Mai',
     category: '运动',
+    group: 'sports',
     area: 'Superhighway',
     hoursText: '每周一/二/四/六 18:00–19:00',
     rules: [{ days: [1, 2, 4, 6], open: '18:00', close: '19:00' }],
@@ -207,6 +237,7 @@ export const VENUES: Venue[] = [
     name: '塔佩拳击场泰拳比赛',
     mapQuery: 'Thaphae Boxing Stadium',
     category: '演出',
+    group: 'show-relax',
     area: '塔佩门对面',
     hoursText: '周一至周六 20:00–24:00（21:00 开赛）',
     rules: [{ days: [1, 2, 3, 4, 5, 6], open: '20:00', close: '24:00' }],
@@ -218,6 +249,7 @@ export const VENUES: Venue[] = [
     name: '泰拳体验课 Thaphae Muay Thai Gym',
     mapQuery: 'Thaphae Muay Thai Gym',
     category: '运动',
+    group: 'sports',
     area: '塔佩门步行 5 分钟',
     hoursText: '每天约 08:00–19:00',
     rules: [{ days: EVERYDAY, open: '08:00', close: '19:00' }],
@@ -229,6 +261,7 @@ export const VENUES: Venue[] = [
     name: 'Club Carving CNX 陆冲馆',
     mapQuery: 'Club Carving CNX',
     category: '运动',
+    group: 'sports',
     area: '素贴路南段',
     hoursText: '每天 11:00–20:00',
     rules: [{ days: EVERYDAY, open: '11:00', close: '20:00' }],
@@ -242,6 +275,7 @@ export const VENUES: Venue[] = [
     name: 'The Arc Cafe & Surf Skate',
     mapQuery: 'The Arc Cafe & Surf Skate',
     category: '运动/咖啡',
+    group: 'sports',
     area: 'Tha Sala',
     hoursText: '每天约 10:00–21:00',
     rules: [{ days: EVERYDAY, open: '10:00', close: '21:00' }],
@@ -253,6 +287,7 @@ export const VENUES: Venue[] = [
     name: 'Shooting Club Chiang Mai 射击',
     mapQuery: 'Shooting Club Chiang Mai',
     category: '运动',
+    group: 'sports',
     area: '湄林',
     hoursText: '每天 08:30–17:30',
     rules: [{ days: EVERYDAY, open: '08:30', close: '17:30' }],
@@ -264,6 +299,7 @@ export const VENUES: Venue[] = [
     name: 'Gymkhana Club 网球',
     mapQuery: 'Gymkhana Club Chiang Mai',
     category: '运动',
+    group: 'sports',
     area: '古城东南',
     hoursText: '每天 07:00–21:00',
     rules: [{ days: EVERYDAY, open: '07:00', close: '21:00' }],
@@ -277,6 +313,7 @@ export const VENUES: Venue[] = [
     name: '按摩 Spa（Fah Lanna 等）',
     mapQuery: 'Fah Lanna Spa',
     category: '放松',
+    group: 'show-relax',
     area: '古城内',
     hoursText: '每天约 10:00–22:00',
     rules: [{ days: EVERYDAY, open: '10:00', close: '22:00' }],
